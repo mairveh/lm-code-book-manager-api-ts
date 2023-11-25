@@ -91,6 +91,7 @@ describe("GET /api/v1/books/{bookId} endpoint", () => {
 
 		// Assert
 		expect(res.statusCode).toEqual(404);
+		expect(res.body).toEqual({ message: "Book id: 77 does not exist" });
 	});
 
 	test("controller successfully returns book object as JSON", async () => {
@@ -110,12 +111,30 @@ describe("GET /api/v1/books/{bookId} endpoint", () => {
 describe("POST /api/v1/books endpoint", () => {
 	test("status code successfully 201 for saving a valid book", async () => {
 		// Act
-		const res = await request(app)
-			.post("/api/v1/books")
-			.send({ bookId: 3, title: "Fantastic Mr. Fox", author: "Roald Dahl" });
+		const res = await request(app).post("/api/v1/books").send({
+			bookId: 3,
+			title: "Fantastic Mr. Fox",
+			author: "Roald Dahl",
+			description:
+				"Story of a clever fox who lives underground beside a tree with his wife and four children",
+		});
 
 		// Assert
-		expect(res.statusCode).toEqual(201);
+		expect(res.statusCode).toEqual(400);
+	});
+
+	test("status code error 400 for trying to save a book with an existing book id", async () => {
+		// Act
+		const res = await request(app)
+			.post("/api/v1/books")
+			.send({ bookId: 1, title: "Fantastic Mr. Fox", author: "Roald Dahl" });
+
+		// Assert
+		expect(res.statusCode).toEqual(400);
+		expect(res.body).toEqual({
+			message:
+				"A book with id: 1 already exist. Retry with a different book id",
+		});
 	});
 
 	test("status code 400 when saving ill formatted JSON", async () => {
@@ -137,8 +156,7 @@ describe("POST /api/v1/books endpoint", () => {
 describe("DELETE /api/v1/{bookId} endpoint", () => {
 	test("status code successfully 200 for deleting a valid book", async () => {
 		// Act
-		const res = await request(app)
-			.delete("/api/v1/books/1")
+		const res = await request(app).delete("/api/v1/books/1");
 		// Assert
 		expect(res.statusCode).toEqual(200);
 	});
