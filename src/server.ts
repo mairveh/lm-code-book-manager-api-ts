@@ -1,16 +1,14 @@
 import { app } from "./app";
 import { populateDummyData } from "./database/database_seed";
+import { APP_CONFIG } from "../config"
 
-const environment = process.env.NODE_ENV || "dev";
-const PORT = 3000;
+console.log(`🌍 Running in ${APP_CONFIG.nodeEnv} environment`);
 
-console.log(`🌍 Running in ${environment} environment`);
-
-app.listen(PORT, () => {
-	console.log(`🚂 Express started on port ${PORT}`);
+app.listen(APP_CONFIG.port, () => {
+	console.log(`🚂 Express started on port ${APP_CONFIG.port}`);
 
 	// Seed the database with some data
-	if (environment === "dev") {
+	if (APP_CONFIG.nodeEnv === "dev") {
 		populateDummyData();
 	}
 });
