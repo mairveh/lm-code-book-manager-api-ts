@@ -19,4 +19,3 @@ if (APP_CONFIG.nodeEnv !== "dev") {
 } else {
 	sequelize = new Sequelize("sqlite::memory:");
 }
-
