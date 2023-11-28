@@ -36,6 +36,18 @@ Followed by:
 npm start
 ```
 
+create .env file in the root folder with the structure below
+```
+NODE_ENV=[dev or test]
+PORT=[application port]
+DB_NAME=[name of the database]
+DB_USERNAME=[database username]
+DB_PASSWORD=[database password]
+DB_HOST=[database host]
+DB_PORT=[database port]
+DB_DIALECT=[postgres or sqlite]
+```
+
 ### Running the Unit Tests
 
 In order to run the unit tests run, firstly install the dependencies (if you haven't already done so)
