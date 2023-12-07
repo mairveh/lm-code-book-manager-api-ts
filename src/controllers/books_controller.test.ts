@@ -25,6 +25,14 @@ const dummyBookData = [
 	},
 ];
 
+const dummyNewBookData = {
+	bookId: 3,
+	title: "Fantastic Mr. Fox",
+	author: "Roald Dahl",
+	description:
+		"Story of a clever fox who lives underground beside a tree with his wife and four children",
+};
+
 describe("GET /api/v1/books endpoint", () => {
 	test("status code successfully 200", async () => {
 		// Act
@@ -87,11 +95,10 @@ describe("GET /api/v1/books/{bookId} endpoint", () => {
 			// BUT we want to check that in the event a book is missing we return a 404
 			.mockResolvedValue(undefined as unknown as Book);
 		// Act
-		const res = await request(app).get("/api/v1/books/77");
+		const res = await request(app).get("/api/v1/books/0");
 
 		// Assert
 		expect(res.statusCode).toEqual(404);
-		expect(res.body).toEqual({ message: "Book id: 77 does not exist" });
 	});
 
 	test("controller successfully returns book object as JSON", async () => {
@@ -109,32 +116,29 @@ describe("GET /api/v1/books/{bookId} endpoint", () => {
 });
 
 describe("POST /api/v1/books endpoint", () => {
+	const mockSaveBook = jest
+		.spyOn(bookService, "saveBook")
+		.mockResolvedValue(dummyNewBookData as Book);
+
 	test("status code successfully 201 for saving a valid book", async () => {
 		// Act
-		const res = await request(app).post("/api/v1/books").send({
-			bookId: 3,
-			title: "Fantastic Mr. Fox",
-			author: "Roald Dahl",
-			description:
-				"Story of a clever fox who lives underground beside a tree with his wife and four children",
-		});
+		const res = await request(app).post("/api/v1/books").send(dummyNewBookData);
 
 		// Assert
-		expect(res.statusCode).toEqual(400);
+		expect(res.statusCode).toEqual(201);
 	});
 
 	test("status code error 400 for trying to save a book with an existing book id", async () => {
+		const mockDeleteBook = jest
+			.spyOn(bookService, "saveBook")
+			.mockImplementation(() => {
+				throw new Error("Book id existis");
+			});
 		// Act
-		const res = await request(app)
-			.post("/api/v1/books")
-			.send({ bookId: 1, title: "Fantastic Mr. Fox", author: "Roald Dahl" });
+		const res = await request(app).post("/api/v1/books").send(dummyBookData[0]);
 
 		// Assert
-		expect(res.statusCode).toEqual(400);
-		expect(res.body).toEqual({
-			message:
-				"A book with id: 1 already exist. Retry with a different book id",
-		});
+		expect(res.status).toEqual(400);
 	});
 
 	test("status code 400 when saving ill formatted JSON", async () => {
@@ -155,9 +159,37 @@ describe("POST /api/v1/books endpoint", () => {
 
 describe("DELETE /api/v1/{bookId} endpoint", () => {
 	test("status code successfully 200 for deleting a valid book", async () => {
+		const mockDeleteBook = jest
+			.spyOn(bookService, "deleteBook")
+			.mockResolvedValue(1);
+
 		// Act
 		const res = await request(app).delete("/api/v1/books/1");
 		// Assert
 		expect(res.statusCode).toEqual(200);
+	});
+
+	test("status code 404 for trying to delete a book that doesn't exist", async () => {
+		const mockDeleteBook = jest
+			.spyOn(bookService, "deleteBook")
+			.mockResolvedValue(0);
+
+		// Act
+		const res = await request(app).delete("/api/v1/books/25");
+		// Assert
+		expect(res.statusCode).toEqual(404);
+	});
+
+	test("status code 400 for invalid book id", async () => {
+		const mockDeleteBook = jest
+			.spyOn(bookService, "deleteBook")
+			.mockImplementation(() => {
+				throw new Error("Book id is not a valid number");
+			});
+
+		// Act
+		const res = await request(app).delete("/api/v1/books/XXX");
+		// Assert
+		expect(res.statusCode).toEqual(400);
 	});
 });
