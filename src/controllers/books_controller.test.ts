@@ -169,7 +169,6 @@ describe("DELETE /api/v1/{bookId} endpoint", () => {
 		expect(res.statusCode).toEqual(200);
 	});
 
-	/*
 	test("status code 404 for trying to delete a book that doesn't exist", async () => {
 		const mockDeleteBook = jest
 			.spyOn(bookService, "deleteBook")
@@ -180,7 +179,6 @@ describe("DELETE /api/v1/{bookId} endpoint", () => {
 		// Assert
 		expect(res.statusCode).toEqual(404);
 	});
-	*/
 
 	test("status code 400 for invalid book id", async () => {
 		const mockDeleteBook = jest

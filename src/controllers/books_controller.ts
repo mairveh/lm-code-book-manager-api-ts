@@ -53,16 +53,18 @@ export const updateBook = async (req: Request, res: Response) => {
 // User Story 5 - Delete Book By Id Solution
 export const deleteBook = async (req: Request, res: Response) => {
 	const bookIdToBeDeleted = Number(req.params.bookId);
-	const book = await bookService.getBook(bookIdToBeDeleted);
 
-	if (book === null) {
-		//if the bookId doesn't exist return an error
-		res.status(404).json(0);
-		return;
-	}
 	try {
-		const numberOfDeletedBooks = await bookService.deleteBook(bookIdToBeDeleted);
-		res.status(200).json(numberOfDeletedBooks);
+		const numberOfDeletedBooks = await bookService.deleteBook(
+			bookIdToBeDeleted
+		);
+		if (numberOfDeletedBooks === 0) {
+			//if the bookId doesn't exist return an error
+			res.status(404).json("This book does not exist");
+		} else {
+
+			res.status(200).json(numberOfDeletedBooks);
+		}
 	} catch (error) {
 		res.status(400).json({ message: (error as Error).message });
 	}
